@@ -1,1 +1,1 @@
-# thevoice.com
+# thevoice
