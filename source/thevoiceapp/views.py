@@ -7,7 +7,11 @@ from rest_framework_jwt.views import JSONWebTokenAPIView
 
 from thevoiceapp.authentication.jwt_utils import jwt_encode_handler
 
-from thevoiceapp.models import Team, Performance, User
+from thevoiceapp.models import Team, Performance, User, PerformanceScore, Candidate
+
+from thevoiceapp.serializers.candidate import CandidatePerformancesSerializer
+from thevoiceapp.view_models.candidate import CandidatePerformancesViewModel
+
 from thevoiceapp.serializers.team import TeamDetailSerializer
 from thevoiceapp.view_models.team import TeamDetailViewModel
 
@@ -32,24 +36,11 @@ class ObtainJwtToken(JSONWebTokenAPIView):
 class CandidatePerformancesView(APIView):
     def get(self, request, candidate_id, *args, **kwargs):
 
-        data = {
-            "performances": [
-                {
-                    "song_name": "song",
-                    "date": "date"
-                }
-            ],
-            "average_score": 100,
-            "team_average_score": 100
-        }
+        candidate_performance_vm = CandidatePerformancesViewModel(
+            candidate_id=candidate_id
+        )
 
-        performances = Performance.objects.select_related(
-            'performance_score', 'mentor__team'
-        ).filter(candidate_id=candidate_id)
-
-
-
-        return Response()
+        return Response(data=CandidatePerformancesSerializer(candidate_performance_vm).data)
 
 
 class TeamView(APIView):
@@ -66,6 +57,7 @@ class TeamView(APIView):
 
         if hasattr(user, 'admin'):
             return Team.objects.all()
+
         return Team.objects.filter(mentor_id=user.id)
 
 

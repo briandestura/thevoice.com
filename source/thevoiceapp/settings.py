@@ -130,7 +130,7 @@ STATIC_URL = '/static/'
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-        'thevoiceapp.permissions.permissions.CanViewTeams'
+        'thevoiceapp.permissions.permissions.CanViewTeamData'
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'thevoiceapp.authentication.jwt_auth.JSONWebTokenAuthentication',
