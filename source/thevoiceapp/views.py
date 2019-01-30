@@ -1,9 +1,32 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework_jwt.settings import api_settings
 
-from thevoiceapp.models import Team
+from rest_framework_jwt.views import JSONWebTokenAPIView
+
+from thevoiceapp.authentication.jwt_utils import jwt_encode_handler
+
+from thevoiceapp.models import Team, Performance, User
 from thevoiceapp.serializers.team import TeamDetailSerializer
 from thevoiceapp.view_models.team import TeamDetailViewModel
+
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
+
+
+class ObtainJwtToken(JSONWebTokenAPIView):
+    def post(self, request, *args, **kwargs):
+
+        token = request.data.get('token', False)
+
+        if token:
+            user = User.objects.get(id=token)
+            payload = jwt_payload_handler(user)
+            token = jwt_encode_handler(payload)
+            return Response(jwt_response_payload_handler(token, user, request))
+
+        return Response(status=status.HTTP_400_BAD_REQUEST, data="Missing token")
 
 
 class CandidatePerformancesView(APIView):
@@ -20,6 +43,11 @@ class CandidatePerformancesView(APIView):
             "team_average_score": 100
         }
 
+        performances = Performance.objects.select_related(
+            'performance_score', 'mentor__team'
+        ).filter(candidate_id=candidate_id)
+
+
 
         return Response()
 
@@ -29,16 +57,16 @@ class TeamView(APIView):
 
         teams_vm = []
 
-        for team in self._get_teams_by_user():
+        for team in self._get_teams_by_user(request.user):
             teams_vm.append(TeamDetailViewModel(team))
 
         return Response(data=TeamDetailSerializer(teams_vm, many=True).data)
 
-    def _get_teams_by_user(self):
+    def _get_teams_by_user(self, user):
 
-        if True:
+        if hasattr(user, 'admin'):
             return Team.objects.all()
-        return Team.objects.filter(mentor_id=1)
+        return Team.objects.filter(mentor_id=user.id)
 
 
 class TeamDetailsView(APIView):

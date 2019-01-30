@@ -21,6 +21,8 @@ from thevoiceapp.views import *
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
+    url(r'v1/auth/jwt/$', ObtainJwtToken.as_view(), name='v1.obtain-jwt-token'),
+
     url(r'^v1/candidate/(?P<candidate_id>\d+)/performances/$', CandidatePerformancesView.as_view(), name='v1.candidate-performances'),
 
     url(r'^v1/teams/$', TeamView.as_view(), name='v1.team'),

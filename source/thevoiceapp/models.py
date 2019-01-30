@@ -12,6 +12,9 @@ class User(models.Model):
     class Meta:
         db_table = 'user'
 
+    def is_authenticated(self):
+        return True
+
 
 class Admin(models.Model):
     user = models.OneToOneField(User, primary_key=True, db_column='user_id', on_delete=models.CASCADE)
