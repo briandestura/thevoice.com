@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class User(models.Model):
@@ -54,6 +57,7 @@ class Performance(models.Model):
     id = models.AutoField(primary_key=True)
     song_name = models.CharField(max_length=255)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
         db_table = 'performance'
@@ -63,7 +67,7 @@ class PerformanceScore(models.Model):
     id = models.AutoField(primary_key=True)
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE)
     mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
-    score = models.IntegerField()
+    score = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
         db_table = 'performance_score'

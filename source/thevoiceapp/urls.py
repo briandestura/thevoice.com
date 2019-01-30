@@ -16,6 +16,13 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from thevoiceapp.views import *
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
+    url(r'^v1/candidate/(?P<candidate_id>\d+)/performances/$', CandidatePerformancesView.as_view(), name='v1.candidate-performances'),
+
+    url(r'^v1/teams/$', TeamView.as_view(), name='v1.team'),
+    url(r'^v1/teams/(?P<team_id>\d+)/$', TeamDetailsView.as_view(), name='v1.team-details'),
 ]
