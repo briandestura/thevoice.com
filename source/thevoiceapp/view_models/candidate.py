@@ -1,19 +1,19 @@
 from django.db.models import Avg
 
-from thevoiceapp.models import Performance, PerformanceScore, Candidate
+from thevoiceapp.models import Performance, PerformanceScore, Candidate, Team, TeamMember
 
 
 class CandidatePerformancesViewModel(object):
     def __init__(self, candidate_id):
 
-        candidate = Candidate.objects.prefetch_related('teammember_set').get(user_id=candidate_id)
+        teammember = TeamMember.objects.get(candidate_id=candidate_id)
 
-        self.performances = Performance.objects.filter(candidate=candidate)
+        self.performances = Performance.objects.filter(candidate=teammember.candidate)
 
         self.average_score = PerformanceScore.objects.filter(
-            performance__candidate=candidate
+            performance__candidate=teammember.candidate
         ).aggregate(Avg('score')).get('score__avg', 0)
 
-        self.team_average_score = PerformanceScore.objects.select_related('mentor__team').filter(
-            mentor__team=candidate.teammember_set.all()[0].team
+        self.team_average_score = PerformanceScore.objects.filter(
+            performance__candidate__teammember__team=teammember.team
         ).aggregate(Avg('score')).get('score__avg', 0)

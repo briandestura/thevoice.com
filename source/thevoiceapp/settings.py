@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import datetime
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -143,3 +144,26 @@ JWT_AUTH = {
     'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=30),
     'JWT_ENCODE_HANDLER': 'thevoiceapp.authentication.jwt_utils.jwt_encode_handler',
 }
+
+
+########## DISABLE MIGRATIONS
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+if TESTING:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+
+    MIGRATION_MODULES = {
+        'auth': None,
+        'contenttypes': None,
+        'default': None,
+        'sessions': None,
+        'core': None,
+        'profiles': None,
+        'snippets': None,
+        'scaffold_templates': None,
+    }
+########## END DISABLE MIGRATIONS

@@ -47,19 +47,17 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
-    id = models.AutoField(primary_key=True)
+    candidate = models.OneToOneField(Candidate, primary_key=True, db_column='candidate_id', on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'team_member'
-        unique_together = ('team', 'candidate')
 
 
 class Performance(models.Model):
     id = models.AutoField(primary_key=True)
     song_name = models.CharField(max_length=255)
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    candidate = models.OneToOneField(Candidate, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
