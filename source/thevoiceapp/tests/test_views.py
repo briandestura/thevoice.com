@@ -25,27 +25,18 @@ class CandidatePerformancesViewTest(APITestCase):
         self.request = self.request_factory.get(self.url)
 
     def test_returns_200(self):
-
-        PerformanceScore.objects.filter(
-            performance__team_member__team=self.candidate.team
-        ).update(score=20)
-
-        PerformanceScore.objects.filter(
-            performance__team_member=self.candidate
-        ).update(score=10)
-
         force_authenticate(self.request, self.mentor.user)
         response = self.view.as_view()(self.request, candidate_id=self.candidate.user)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['performances']), 1)
-        self.assertEqual(response.data['average_score'], 10)
-        self.assertEqual(response.data['team_average_score'], 15)
+
+    def test_unknown_candidate_returns_404(self):
+        force_authenticate(self.request, self.mentor.user)
+        response = self.view.as_view()(self.request, candidate_id=self.candidate.user.id + 999)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_no_perms_returns_401(self):
         force_authenticate(self.request, self.candidate.user)
         response = self.view.as_view()(self.request, candidate_id=self.candidate.pk)
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -98,7 +89,6 @@ class TeamViewTest(APITestCase):
     def test_user_no_perms_returns_401(self):
         force_authenticate(self.request, self.candidate.user)
         response = self.view.as_view()(self.request)
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -116,27 +106,16 @@ class TeamDetailsViewTest(APITestCase):
         self.request = self.request_factory.get(self.url)
 
     def test_returns_valid_data_returns_200(self):
-
         force_authenticate(self.request, self.mentor.user)
         response = self.view.as_view()(self.request, team_id=self.team.id)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['id'], self.team.id)
-        self.assertEqual(response.data['team_name'], self.team.team_name)
 
-        self.assertEqual(response.data['average_score'], int(PerformanceScore.objects.filter(
-            performance__team_member__team=self.team
-        ).aggregate(Avg('score')).get('score__avg', 0)))
-
-        self.assertEqual(response.data['members'], [
-            {
-                'first_name': member.user.first_name,
-                'last_name': member.user.last_name
-            } for member in self.team.teammember_set.all()
-        ])
+    def test_unknown_team_returns_404(self):
+        force_authenticate(self.request, self.mentor.user)
+        response = self.view.as_view()(self.request, team_id=self.team.id + 999)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_no_perms_returns_401(self):
         force_authenticate(self.request, self.candidate.user)
         response = self.view.as_view()(self.request, team_id=self.team.id)
-
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
