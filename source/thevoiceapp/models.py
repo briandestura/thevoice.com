@@ -30,24 +30,17 @@ class Mentor(models.Model):
         db_table = 'user_mentor'
 
 
-class Candidate(models.Model):
-    user = models.OneToOneField(User, primary_key=True, db_column='user_id', on_delete=models.CASCADE)
-
-    class Meta:
-        db_table = 'user_candidate'
-
-
 class Team(models.Model):
     id = models.AutoField(primary_key=True)
     team_name = models.CharField(max_length=255)
-    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(Mentor, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         db_table = 'team'
 
 
 class TeamMember(models.Model):
-    candidate = models.OneToOneField(Candidate, primary_key=True, db_column='candidate_id', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, db_column='user_id', primary_key=True, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
 
     class Meta:
@@ -57,7 +50,7 @@ class TeamMember(models.Model):
 class Performance(models.Model):
     id = models.AutoField(primary_key=True)
     song_name = models.CharField(max_length=255)
-    candidate = models.OneToOneField(Candidate, on_delete=models.CASCADE)
+    team_member = models.OneToOneField(TeamMember, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
@@ -67,7 +60,7 @@ class Performance(models.Model):
 class PerformanceScore(models.Model):
     id = models.AutoField(primary_key=True)
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE)
-    mentor = models.ForeignKey(Mentor, on_delete=models.CASCADE)
+    mentor = models.ForeignKey(Mentor, null=True, on_delete=models.SET_NULL)
     score = models.PositiveIntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:

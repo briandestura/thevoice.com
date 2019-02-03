@@ -7,7 +7,7 @@ from rest_framework_jwt.views import JSONWebTokenAPIView
 
 from thevoiceapp.authentication.jwt_utils import jwt_encode_handler
 
-from thevoiceapp.models import Team, Performance, User, PerformanceScore, Candidate
+from thevoiceapp.models import Team, Performance, User, PerformanceScore
 
 from thevoiceapp.serializers.candidate import CandidatePerformancesSerializer
 from thevoiceapp.view_models.candidate import CandidatePerformancesViewModel

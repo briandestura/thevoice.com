@@ -2,13 +2,12 @@ import random
 
 from django.core.management.base import BaseCommand
 
-from thevoiceapp.models import Admin, Candidate, Mentor, User, Team, TeamMember, Performance, PerformanceScore
+from thevoiceapp.models import Admin, Mentor, User, Team, TeamMember, Performance, PerformanceScore
 
 
 def initialise_data():
 
     Admin.objects.all().delete()
-    Candidate.objects.all().delete()
     Mentor.objects.all().delete()
     User.objects.all().delete()
     Team.objects.all().delete()
@@ -20,10 +19,10 @@ def initialise_data():
         user=User.objects.create(first_name='Admin', last_name='1')
     )
 
-    Candidate.objects.bulk_create([
-        Candidate(user=User.objects.create(first_name='Contestant', last_name=str(c))) for c in range(6)
+    User.objects.bulk_create([
+        User(first_name='Contestant', last_name=str(c)) for c in range(1,7)
     ])
-    candidates = Candidate.objects.all()
+    candidates = User.objects.filter(first_name='Contestant')
 
     Mentor.objects.bulk_create([
         Mentor(user=User.objects.create(first_name='Mentor', last_name=str(m))) for m in range(3)
@@ -39,16 +38,17 @@ def initialise_data():
     teams = Team.objects.all()
 
     TeamMember.objects.bulk_create([
-        TeamMember(team=teams[0], candidate=candidates[0]),
-        TeamMember(team=teams[0], candidate=candidates[1]),
-        TeamMember(team=teams[1], candidate=candidates[2]),
-        TeamMember(team=teams[1], candidate=candidates[3]),
-        TeamMember(team=teams[2], candidate=candidates[4]),
-        TeamMember(team=teams[3], candidate=candidates[5]),
+        TeamMember(team=teams[0], user=candidates[0]),
+        TeamMember(team=teams[0], user=candidates[1]),
+        TeamMember(team=teams[1], user=candidates[2]),
+        TeamMember(team=teams[1], user=candidates[3]),
+        TeamMember(team=teams[2], user=candidates[4]),
+        TeamMember(team=teams[3], user=candidates[5]),
     ])
+    team_members = TeamMember.objects.all()
 
     Performance.objects.bulk_create([
-        Performance(song_name='Song {}'.format(idx + 1), candidate=candidates[idx]) for idx, val in enumerate(candidates)
+        Performance(song_name='Song {}'.format(idx + 1), team_member=team_members[idx]) for idx, val in enumerate(team_members)
     ])
     performances = Performance.objects.all()
 

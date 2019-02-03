@@ -9,10 +9,10 @@ class TeamDetailViewModel(object):
         self.team_name = team.team_name
         self.mentor = team.mentor.user
 
-        members = TeamMember.objects.select_related('candidate__user').filter(team_id=team.id)
+        members = TeamMember.objects.select_related('user').filter(team_id=team.id)
         self.members = [
-            member.candidate.user for member in members
+            member.user for member in members
         ]
         self.average_score = PerformanceScore.objects.filter(
-            performance__candidate__user__in=self.members
+            performance__team_member__user__in=self.members
         ).aggregate(Avg('score')).get('score__avg', 0)
