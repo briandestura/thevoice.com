@@ -21,7 +21,7 @@ class TeamService(object):
     def get_team_average_score(self):
 
         self.average_score = PerformanceScore.objects.filter(
-            performance__team_member__user__in=self.get_team_members()
+            performance__team_member__user__in=TeamMember.objects.filter(team_id=self.team.id)
         ).aggregate(Avg('score')).get('score__avg', 0)
 
         return self.average_score
